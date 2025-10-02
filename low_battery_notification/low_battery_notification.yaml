@@ -173,13 +173,13 @@ variables:
 
     {# === BATTERY SENSOR DETECTION === #}
     {# Find all battery sensors below threshold, excluding those in exclusion list #}
-    {% for state in states.sensor | selectattr('attributes.device_class', 'search', 'battery') %}
+    {% for state in states.sensor if state.attributes.device_class is defined and state.attributes.device_class == 'battery' %}
       {% if 0 <= state.state | int(-1) < threshold | int and not state.entity_id in result.excludedEntities %}
         {% set result.sensors = result.sensors + [state.name ~ ' (' ~ state.state ~ ' %)'] %}
       {% endif %}
     {% endfor %}
     {# Also check binary battery sensors that are 'on' (indicating low battery) #}
-    {% for state in states.binary_sensor | selectattr('attributes.device_class', 'search', 'battery') | selectattr('state', '==', 'on') %}
+    {% for state in states.binary_sensor if state.attributes.device_class is defined and state.attributes.device_class == 'battery' and state.state == 'on' %}
       {% if not state.entity_id in result.excludedEntities %}
         {% set result.sensors = result.sensors + [state.name] %}
       {% endif %}
